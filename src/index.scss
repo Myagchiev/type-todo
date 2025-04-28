@@ -1,0 +1,99 @@
+@import '@fontsource/inter/400.css';
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #0D0714;
+}
+
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #1D1825;
+  border-radius: 10px;
+}
+
+.todo-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  input {
+    flex: 1;
+    padding: 10px;
+    color: #777777;
+    background-color: transparent;
+    border: 1px solid #3E1671;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button {
+    padding: 5px 10px;
+    background-color: #9E78CF;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+
+    &:hover {
+      background-color: #3E1671;
+    }
+  }
+}
+
+.todo-list {
+  h2 {
+    font-size: 18px;
+    color: #FFFFFF;
+    margin: 60px 0 18px;
+    font-weight: 400;
+  }
+}
+
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  color: #9E78CF;
+  background-color: #15101C;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+
+  &.completed {
+    color: #78CFB0;
+    background-color: #15101C;
+    text-decoration: line-through;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .toggle-btn,
+  .delete-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #9E78CF;
+  }
+
+  .toggle-btn:hover {
+    color: #3E1671;
+  }
+
+  .delete-btn:hover {
+    color: #3E1671;
+  }
+}
