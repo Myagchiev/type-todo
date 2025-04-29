@@ -10,7 +10,7 @@ interface TodoItemProps {
   completed: boolean;
 }
 
-const TodoItem = ({ id, text, completed }: TodoItemProps) => {
+  const TodoItem = ({ id, text, completed }: TodoItemProps) => {
   const dispatch = useAppDispatch();
 
   return (
