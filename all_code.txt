@@ -1,0 +1,336 @@
+﻿import { useState } from 'react';
+import { IoMdAdd } from 'react-icons/io';
+import { useAppDispatch } from '../store/hooks';
+import { addTodo } from '../store/todoSlice';
+
+const TodoForm = () => {
+  const [text, setText] = useState('');
+  const dispatch = useAppDispatch();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (text.trim()) {
+      dispatch(addTodo(text));
+      setText('');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="todo-form">
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Add a new task"
+      />
+      <button type="submit"><IoMdAdd style={{ fontSize: '25px' }}/></button>
+    </form>
+  );
+};
+
+export default TodoForm;
+import { FiCheck, FiTrash } from 'react-icons/fi';
+import { FaUndo } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { useAppDispatch } from '../store/hooks';
+import { removeTodo, toggleTodo } from '../store/todoSlice';
+
+interface TodoItemProps {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+const TodoItem = ({ id, text, completed }: TodoItemProps) => {
+  const dispatch = useAppDispatch();
+
+  return (
+    <motion.div
+      className={`todo-item ${completed ? 'completed' : ''}`}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.3 }}
+    >
+      <span>{text}</span>
+      <div className="actions">
+        <button
+          className="toggle-btn"
+          onClick={() => dispatch(toggleTodo(id))}
+        >
+          {completed ? <FaUndo style={{ fontSize: '18px' }} /> : <FiCheck style={{ fontSize: '25px' }} />}
+        </button>
+        <button
+          className="delete-btn"
+          onClick={() => dispatch(removeTodo(id))}
+        >
+          <FiTrash style={{ fontSize: '20px' }} />
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
+export default TodoItem;
+import { useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import TodoItem from './TodoItem';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { loadTodos } from '../store/todoSlice';
+
+const TodoList = () => {
+  const todos = useAppSelector((state) => state.todos.todos);
+  const dispatch = useAppDispatch();
+
+  const activeCount = todos.filter((todo) => !todo.completed).length;
+  const completedCount = todos.filter((todo) => todo.completed).length;
+
+  useEffect(() => {
+    const todosFromStorage = JSON.parse(localStorage.getItem('todos') || '[]');
+    if (
+      Array.isArray(todosFromStorage) &&
+      todosFromStorage.every(
+        (todo) =>
+          typeof todo.id === 'string' &&
+          typeof todo.text === 'string' &&
+          typeof todo.completed === 'boolean'
+      )
+    ) {
+      dispatch(loadTodos(todosFromStorage));
+    } else {
+      dispatch(loadTodos([]));
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    const serializedTodos = JSON.stringify(todos);
+    if (localStorage.getItem('todos') !== serializedTodos) {
+      localStorage.setItem('todos', serializedTodos);
+    }
+  }, [todos]);
+
+  return (
+    <div className="todo-list">
+      <h2>Tasks to do - {activeCount}</h2>
+      <div className="active-todos">
+        <AnimatePresence>
+          {todos
+            .filter((todo) => !todo.completed)
+            .map((todo) => (
+              <TodoItem
+                key={todo.id}
+                id={todo.id}
+                text={todo.text}
+                completed={todo.completed}
+              />
+            ))}
+        </AnimatePresence>
+      </div>
+      <h2>Done - {completedCount}</h2>
+      <div className="done-todos">
+        <AnimatePresence>
+          {todos
+            .filter((todo) => todo.completed)
+            .map((todo) => (
+              <TodoItem
+                key={todo.id}
+                id={todo.id}
+                text={todo.text}
+                completed={todo.completed}
+              />
+            ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default TodoList;
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from './index';
+
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+import { configureStore } from '@reduxjs/toolkit';
+import todoReducer from './todoSlice';
+
+export const store = configureStore({
+  reducer: {
+    todos: todoReducer,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid'; // РРјРїРѕСЂС‚ uuid
+
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+interface TodoState {
+  todos: Todo[];
+}
+
+const initialState: TodoState = {
+  todos: [],
+};
+
+const todoSlice = createSlice({
+  name: 'todos',
+  initialState,
+  reducers: {
+    addTodo: (state, action: PayloadAction<string>) => {
+      state.todos.push({
+        id: uuidv4(),
+        text: action.payload,
+        completed: false,
+      });
+    },
+    removeTodo: (state, action: PayloadAction<string>) => {
+      state.todos = state.todos.filter((todo) => todo.id !== action.payload);
+    },
+    toggleTodo: (state, action: PayloadAction<string>) => {
+      const todo = state.todos.find((todo) => todo.id === action.payload);
+      if (todo) {
+        todo.completed = !todo.completed;
+      }
+    },
+    loadTodos: (state, action: PayloadAction<Todo[]>) => {
+      state.todos = action.payload;
+    },
+  },
+});
+
+export const { addTodo, removeTodo, toggleTodo, loadTodos } = todoSlice.actions;
+export default todoSlice.reducer;
+import TodoForm from './components/TodoForm';
+import TodoList from './components/TodoList';
+
+function App() {
+  return (
+    <div className="container">
+      <TodoForm />
+      <TodoList />
+    </div>
+  );
+}
+
+export default App;
+@import '@fontsource/inter/400.css';
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #0D0714;
+}
+
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #1D1825;
+  border-radius: 10px;
+}
+
+.todo-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  input {
+    flex: 1;
+    padding: 10px;
+    color: #777777;
+    background-color: transparent;
+    border: 1px solid #3E1671;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button {
+    padding: 5px 10px;
+    background-color: #9E78CF;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+
+    &:hover {
+      background-color: #3E1671;
+    }
+  }
+}
+
+.todo-list {
+  h2 {
+    font-size: 18px;
+    color: #FFFFFF;
+    margin: 60px 0 18px;
+    font-weight: 400;
+  }
+}
+
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  color: #9E78CF;
+  background-color: #15101C;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+
+  &.completed {
+    color: #78CFB0;
+    background-color: #15101C;
+    text-decoration: line-through;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .toggle-btn,
+  .delete-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #9E78CF;
+  }
+
+  .toggle-btn:hover {
+    color: #3E1671;
+  }
+
+  .delete-btn:hover {
+    color: #3E1671;
+  }
+}
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import App from './App.tsx';
+import './index.scss';
+import { store } from './store';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>,
+);
+/// <reference types="vite/client" />

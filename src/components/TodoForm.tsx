@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { IoMdAdd } from 'react-icons/io';
+import { useAppDispatch } from '../store/hooks';
 import { addTodo } from '../store/todoSlice';
-import { IoMdAdd } from "react-icons/io";
 
 const TodoForm = () => {
   const [text, setText] = useState('');
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

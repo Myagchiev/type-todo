@@ -3,6 +3,8 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   background-color: #0D0714;
 }
 
@@ -26,8 +28,6 @@ body {
     background-color: transparent;
     border: 1px solid #3E1671;
     border-radius: 10px;
-    font-size: 16px;
-    font-family: 'Inter', sans-serif;
   }
 
   button {
@@ -37,8 +37,6 @@ body {
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
 
     &:hover {
       background-color: #3E1671;
@@ -48,10 +46,9 @@ body {
 
 .todo-list {
   h2 {
-    font-size: 18px;
+    font-size: 16px;
     color: #FFFFFF;
     margin: 60px 0 18px;
-    font-weight: 400;
   }
 }
 
@@ -65,7 +62,6 @@ body {
   border-radius: 10px;
   margin-bottom: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-family: 'Inter', sans-serif;
 
   &.completed {
     color: #78CFB0;

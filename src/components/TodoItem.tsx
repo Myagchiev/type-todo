@@ -1,17 +1,17 @@
-import { useDispatch } from 'react-redux';
-import { FiCheck, FiTrash } from "react-icons/fi";
-import { FaUndo } from "react-icons/fa";
+import { FiCheck, FiTrash } from 'react-icons/fi';
+import { FaUndo } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { useAppDispatch } from '../store/hooks';
 import { removeTodo, toggleTodo } from '../store/todoSlice';
 
 interface TodoItemProps {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
 }
 
 const TodoItem = ({ id, text, completed }: TodoItemProps) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   return (
     <motion.div

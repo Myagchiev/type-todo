@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid'; // Импорт uuid
 
 interface Todo {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
 }
@@ -11,7 +12,7 @@ interface TodoState {
 }
 
 const initialState: TodoState = {
-  todos: JSON.parse(localStorage.getItem('todos') || '[]'),
+  todos: [],
 };
 
 const todoSlice = createSlice({
@@ -20,25 +21,25 @@ const todoSlice = createSlice({
   reducers: {
     addTodo: (state, action: PayloadAction<string>) => {
       state.todos.push({
-        id: Date.now(),
+        id: uuidv4(),
         text: action.payload,
         completed: false,
       });
-      localStorage.setItem('todos', JSON.stringify(state.todos));
     },
-    removeTodo: (state, action: PayloadAction<number>) => {
+    removeTodo: (state, action: PayloadAction<string>) => {
       state.todos = state.todos.filter((todo) => todo.id !== action.payload);
-      localStorage.setItem('todos', JSON.stringify(state.todos));
     },
-    toggleTodo: (state, action: PayloadAction<number>) => {
+    toggleTodo: (state, action: PayloadAction<string>) => {
       const todo = state.todos.find((todo) => todo.id === action.payload);
       if (todo) {
         todo.completed = !todo.completed;
       }
-      localStorage.setItem('todos', JSON.stringify(state.todos));
+    },
+    loadTodos: (state, action: PayloadAction<Todo[]>) => {
+      state.todos = action.payload;
     },
   },
 });
 
-export const { addTodo, removeTodo, toggleTodo } = todoSlice.actions;
+export const { addTodo, removeTodo, toggleTodo, loadTodos } = todoSlice.actions;
 export default todoSlice.reducer;
